@@ -1,270 +1,187 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <title>Terminal</title>
 
-
-
 <style>
+  body {
+    margin: 0;
+    padding: 20px;
+    background: black;
+    color: #00ff88;
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    overflow: hidden; /* Prevents scrollbars during the animation */
+  }
 
-body {
+  #terminal {
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
 
-margin: 0;
+  .cursor {
+    display: inline-block;
+    width: 10px;
+    background: #00ff88;
+    animation: blink 1s infinite;
+  }
 
-padding: 20px;
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
 
-background: black;
+  .heart {
+    color: #ff4d6d;
+    text-align: center;
+    animation: pulse 1.2s infinite;
+  }
 
-color: #00ff88;
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
 
-font-family: "Courier New", monospace;
+  /* NEW BUTTON STYLES */
+  .btn-wrap {
+    text-align: center;
+    margin-top: 20px;
+  }
 
-font-size: 16px;
+  .choice-btn {
+    background: black;
+    color: #00ff88;
+    border: 1px solid #00ff88;
+    padding: 10px 20px;
+    font-family: "Courier New", monospace;
+    cursor: pointer;
+    margin: 0 10px;
+  }
 
-}
+  #noBtn {
+    position: absolute;
+    transition: 0.1s;
+  }
 
+  /* CELEBRATION OVERLAY */
+  #celebration {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: black;
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #ff4d6d;
+  }
 
+  .floating-heart {
+    position: absolute;
+    animation: floatUp 4s linear forwards;
+  }
 
-#terminal {
-
-white-space: pre-wrap;
-
-line-height: 1.5;
-
-}
-
-
-
-.cursor {
-
-display: inline-block;
-
-width: 10px;
-
-background: #00ff88;
-
-animation: blink 1s infinite;
-
-}
-
-
-
-@keyframes blink {
-
-50% { opacity: 0; }
-
-}
-
-
-
-.heart {
-
-color: #ff4d6d;
-
-text-align: center;
-
-animation: pulse 1.2s infinite;
-
-}
-
-
-
-@keyframes pulse {
-
-0% { transform: scale(1); }
-
-50% { transform: scale(1.05); }
-
-100% { transform: scale(1); }
-
-}
-
+  @keyframes floatUp {
+    from { transform: translateY(100vh); opacity: 1; }
+    to { transform: translateY(-10vh); opacity: 0; }
+  }
 </style>
-
 </head>
 
-
-
 <body>
-
 <div id="terminal"></div>
 
-
+<div id="celebration">
+    <h1 style="font-size: 3rem;">YAY! ❤️</h1>
+    <p>Valentine Status: SECURED</p>
+</div>
 
 <script>
-
 const term = document.getElementById("terminal");
-
-
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-
-
 async function type(text, speed = 35) {
-
-for (let c of text) {
-
-term.innerHTML += c;
-
-await sleep(speed);
-
+  for (let c of text) {
+    term.innerHTML += c;
+    await sleep(speed);
+  }
+  term.innerHTML += "\n";
 }
-
-term.innerHTML += "\n";
-
-}
-
-
 
 async function loading(label) {
-
-let pct = 0;
-
-while (pct < 100) {
-
-term.innerHTML += `${label} [${pct}%]\n`;
-
-await sleep(250 + Math.random() * 200);
-
-pct += Math.floor(Math.random() * 20) + 5;
-
-term.innerHTML = term.innerHTML.replace(/.*\n$/, "");
-
+  let pct = 0;
+  while (pct < 100) {
+    term.innerHTML += `${label} [${pct}%]\n`;
+    await sleep(250 + Math.random() * 200);
+    pct += Math.floor(Math.random() * 20) + 5;
+    term.innerHTML = term.innerHTML.replace(/.*\n$/, "");
+  }
+  term.innerHTML += `${label} [100%]\n`;
+  await sleep(300);
 }
-
-term.innerHTML += `${label} [100%]\n`;
-
-await sleep(300);
-
-}
-
-
 
 async function boot() {
+  await type("Booting ValentineOS v14.02...");
+  await sleep(400);
 
-await type("Booting ValentineOS v14.02...");
+  await loading("Scanning for beauty.............");
+  await loading("Scanning for kindness...........");
+  await loading("Scanning for humor..............");
+  await loading("Scanning for intelligence.......");
+  await sleep(400);
 
-await sleep(400);
-
-
-
-await loading("Scanning for beauty.............");
-
-await loading("Scanning for kindness...........");
-
-await loading("Scanning for humor..............");
-
-await loading("Scanning for intelligence.......");
-
-await sleep(400);
-
-
-
-await type("");
-
-await type("Locating Valentine.............. [FOUND]");
-
-await type("Target: YOU");
-
-await type("");
-
-await type("System status: STABLE");
-
-await type("");
-
-await type("Awaiting command...");
-
-prompt();
-
+  await type("");
+  await type("Locating Valentine.............. [FOUND]");
+  await type("Target: YOU");
+  await type("");
+  await type("System status: STABLE");
+  await type("");
+  await type("Awaiting command...");
+  prompt();
 }
-
-
 
 function prompt() {
+  term.innerHTML += "\n> ";
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  term.appendChild(cursor);
 
-term.innerHTML += "\n> ";
+  let input = "";
 
-const cursor = document.createElement("span");
+  function handler(e) {
+    if (e.key.length === 1) {
+      input += e.key;
+      cursor.insertAdjacentText("beforebegin", e.key);
+    } else if (e.key === "Backspace") {
+      input = input.slice(0, -1);
+      term.innerHTML = term.innerHTML.slice(0, -1);
+    } else if (e.key === "Enter") {
+      document.removeEventListener("keydown", handler);
+      cursor.remove();
+      term.innerHTML += "\n";
+      handleCommand(input.trim());
+    }
+  }
 
-cursor.className = "cursor";
-
-term.appendChild(cursor);
-
-
-
-let input = "";
-
-
-
-function handler(e) {
-
-if (e.key.length === 1) {
-
-input += e.key;
-
-cursor.insertAdjacentText("beforebegin", e.key);
-
-} else if (e.key === "Backspace") {
-
-input = input.slice(0, -1);
-
-term.innerHTML = term.innerHTML.slice(0, -1);
-
-} else if (e.key === "Enter") {
-
-document.removeEventListener("keydown", handler);
-
-cursor.remove();
-
-term.innerHTML += "\n";
-
-handleCommand(input.trim());
-
+  document.addEventListener("keydown", handler);
 }
-
-}
-
-
-
-document.addEventListener("keydown", handler);
-
-}
-
-
 
 function handleCommand(cmd) {
-
-if (cmd.toLowerCase() === "run love.exe") {
-
-finale();
-
-} else {
-
-term.innerHTML += "Command not recognized.\n";
-
-prompt();
-
+  if (cmd.toLowerCase() === "run love.exe") {
+    finale();
+  } else {
+    term.innerHTML += "Command not recognized.\n";
+    prompt();
+  }
 }
-
-}
-
-
 
 async function finale() {
+  term.innerHTML = "";
+  await sleep(600);
 
-term.innerHTML = "";
-
-await sleep(600);
-
-
-
-term.innerHTML = `
+  term.innerHTML = `
 <div class="heart">
       XXXXXXX       XXXXXXX
     XXXXXXXXXXX   XXXXXXXXXXX
@@ -284,15 +201,40 @@ Love status: MAXIMUM 💖
 
 Will you be my Valentine?
 </div>
+<div class="btn-wrap">
+    <button class="choice-btn" onclick="startCelebration()">YES</button>
+    <button class="choice-btn" id="noBtn">NO</button>
+</div>
 `;
+
+  // Make the NO button run away
+  const noBtn = document.getElementById('noBtn');
+  noBtn.addEventListener('mouseover', () => {
+    const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+    const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+  });
+  
+  // If they somehow click it (like on mobile), it acts as a yes anyway!
+  noBtn.addEventListener('click', startCelebration);
 }
 
-
+function startCelebration() {
+    document.getElementById('celebration').style.display = 'flex';
+    // Create floating hearts
+    setInterval(() => {
+        const h = document.createElement('div');
+        h.innerHTML = "❤️";
+        h.className = "floating-heart";
+        h.style.left = Math.random() * 100 + "vw";
+        h.style.fontSize = (Math.random() * 20 + 20) + "px";
+        document.getElementById('celebration').appendChild(h);
+        setTimeout(() => h.remove(), 4000);
+    }, 150);
+}
 
 boot();
-
 </script>
-
 </body>
-
 </html>
