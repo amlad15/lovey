@@ -12,7 +12,7 @@
     color: #00ff88;
     font-family: "Courier New", monospace;
     font-size: 16px;
-    overflow: hidden; /* Prevents scrollbars during the animation */
+    overflow: hidden; /* Added to keep animation clean */
   }
 
   #terminal {
@@ -43,8 +43,8 @@
     100% { transform: scale(1); }
   }
 
-  /* NEW BUTTON STYLES */
-  .btn-wrap {
+  /* NEW: Button Styles */
+  .btn-container {
     text-align: center;
     margin-top: 20px;
   }
@@ -57,23 +57,24 @@
     font-family: "Courier New", monospace;
     cursor: pointer;
     margin: 0 10px;
+    font-size: 16px;
   }
 
   #noBtn {
-    position: absolute;
+    position: absolute; /* Crucial for the runaway effect */
     transition: 0.1s;
   }
 
-  /* CELEBRATION OVERLAY */
+  /* NEW: Animation Style */
   #celebration {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background: black;
     z-index: 999;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
     color: #ff4d6d;
   }
 
@@ -181,6 +182,7 @@ async function finale() {
   term.innerHTML = "";
   await sleep(600);
 
+  // Original heart with injected Buttons
   term.innerHTML = `
 <div class="heart">
       XXXXXXX       XXXXXXX
@@ -201,13 +203,13 @@ Love status: MAXIMUM 💖
 
 Will you be my Valentine?
 </div>
-<div class="btn-wrap">
-    <button class="choice-btn" onclick="startCelebration()">YES</button>
+<div class="btn-container">
+    <button class="choice-btn" onclick="startSuccess()">YES</button>
     <button class="choice-btn" id="noBtn">NO</button>
 </div>
 `;
 
-  // Make the NO button run away
+  // RUNAWAY NO BUTTON LOGIC
   const noBtn = document.getElementById('noBtn');
   noBtn.addEventListener('mouseover', () => {
     const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
@@ -215,14 +217,11 @@ Will you be my Valentine?
     noBtn.style.left = x + 'px';
     noBtn.style.top = y + 'px';
   });
-  
-  // If they somehow click it (like on mobile), it acts as a yes anyway!
-  noBtn.addEventListener('click', startCelebration);
 }
 
-function startCelebration() {
+// SUCCESS ANIMATION LOGIC
+function startSuccess() {
     document.getElementById('celebration').style.display = 'flex';
-    // Create floating hearts
     setInterval(() => {
         const h = document.createElement('div');
         h.innerHTML = "❤️";
